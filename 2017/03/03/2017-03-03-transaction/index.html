@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="陶陶滔滔涛的博客">
+    <meta name="keyword" content="陶陶滔滔涛, ruitao, Java">
+    <meta name="theme-color" content="#600090">
+    <meta name="msapplication-navbutton-color" content="#600090">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#600090">
+    <link rel="shortcut icon" href="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-person-128.png">
+    <link rel="alternate" type="application/atom+xml" title="陶陶滔滔涛" href="/atom.xml">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
+    <title>
+        
+        事务与并发｜陶陶滔滔涛的博客
+        
+    </title>
+
+    <link rel="canonical" href="http://haojen.github.io/2017/03/03/2017-03-03-transaction/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/blog-style.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+
+<style>
+
+    header.intro-header {
+        background-image: url('//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80')
+    }
+</style>
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="" class="animated fadeIn">
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top " id="nav-top" data-ispost = "true" data-istags="false
+" data-ishome = "false" >
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand animated pulse" href="/">
+                <span class="brand-logo">
+                    陶陶滔滔涛
+                </span>
+                的博客
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <!-- /.navbar-collapse -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">首页</a>
+                    </li>
+					
+                    
+                        
+							
+                        <li>
+                            <a href="/tags/">标签</a>
+                        </li>
+							
+						
+                    
+					
+					
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+//    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+<!-- Main Content -->
+
+<!--only post-->
+
+
+<img class="wechat-title-img"
+     src="//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80">
+
+
+<style>
+    
+    header.intro-header {
+        background-image: url('//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80')
+    }
+
+    
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <div class="post-heading">
+                    <h1>事务与并发</h1>
+                    
+                    <span class="meta">
+                         作者 陶陶滔滔涛
+                        <span>
+                          日期 2017-03-03
+                         </span>
+                    </span>
+                    <div class="tags text-center">
+                        
+                        <a class="tag" href="/tags/#Java"
+                           title="Java">Java</a>
+                        
+                        <a class="tag" href="/tags/#事务"
+                           title="事务">事务</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="post-title-haojen">
+        <span>
+            事务与并发
+        </span>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <!-- Post Container -->
+            <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
+                <h2 id="事务是什么"><a href="#事务是什么" class="headerlink" title="事务是什么"></a>事务是什么</h2><p><a href="https://www.wikiwand.com/zh-hans/%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BA%8B%E5%8A%A1" target="_blank" rel="noopener">https://www.wikiwand.com/zh-hans/%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BA%8B%E5%8A%A1</a></p>
+<p>Wiki的介绍很清晰，这里就不再粘贴复制了。<br><a id="more"></a></p>
+<h2 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h2><p>MySQL的事务隔离级别基本和Oracle一致，此处以MySQL为例讲解。</p>
+<p>参考文档：</p>
+<p><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html</a></p>
+<p><a href="http://xstarcd.github.io/wiki/MySQL/mysql_isolation_level.html" target="_blank" rel="noopener">http://xstarcd.github.io/wiki/MySQL/mysql_isolation_level.html</a></p>
+<p>MySQL有四种隔离级别</p>
+<ul>
+<li>Read Uncommitted（读未提交）</li>
+</ul>
+<p>在该隔离级别，所有事务都可以看到其他未提交事务的执行结果。本隔离级别很少用于实际应用，因为它的性能也不比其他级别好多少。读取未提交的数据，也被称之为脏读（Dirty Read）。</p>
+<ul>
+<li>Read Committed（读已提交）</li>
+</ul>
+<p>这是大多数数据库系统的默认隔离级别（但不是MySQL默认的）。它满足了隔离的简单定义：一个事务只能看见已经提交事务所做的改变。这种隔离级别 也支持所谓的不可重复读（Nonrepeatable Read），因为同一事务的其他实例在该实例处理其间可能会有新的commit，所以同一select可能返回不同结果。</p>
+<ul>
+<li>Repeatable Read（可重读）</li>
+</ul>
+<p>这是MySQL的默认事务隔离级别，它确保同一事务的多个实例在并发读取数据时，会看到同样的数据行。不过理论上，这会导致另一个棘手的问题：幻读 （Phantom Read）。简单的说，幻读指当用户读取某一范围的数据行时，另一个事务又在该范围内插入了新行，当用户再读取该范围的数据行时，会发现有新的“幻影” 行。InnoDB和Falcon存储引擎通过多版本并发控制（MVCC，Multiversion Concurrency Control）机制解决了该问题。</p>
+<ul>
+<li>Serializable（可串行化）</li>
+</ul>
+<p>这是最高的隔离级别，它通过强制事务排序，使之不可能相互冲突，从而解决幻读问题。简言之，它是在每个读的数据行上加上共享锁。在这个级别，可能导致大量的超时现象和锁竞争。</p>
+<h2 id="隔离级别与一致性"><a href="#隔离级别与一致性" class="headerlink" title="隔离级别与一致性"></a>隔离级别与一致性</h2><p>这四种隔离级别采取不同的锁类型来实现，若读取的是同一个数据的话，就容易发生问题。例如：</p>
+<p>脏读(Drity Read)：某个事务已更新一份数据，另一个事务在此时读取了同一份数据，由于某些原因，前一个RollBack了操作，则后一个事务所读取的数据就会是不正确的。</p>
+<p>不可重复读(Non-repeatable read):在一个事务的两次查询之中数据不一致，这可能是两次查询过程中间插入了一个事务更新的原有的数据。</p>
+<p>幻读(Phantom Read):在一个事务的两次查询中数据笔数不一致，例如有一个事务查询了几列(Row)数据，而另一个事务却在此时插入了新的几列数据，先前的事务在接下来的查询中，就会发现有几列数据是它先前所没有的。</p>
+<p>在MySQL中，实现了这四种隔离级别，分别有可能产生问题如下所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">隔离级别</th>
+<th style="text-align:center">脏读</th>
+<th style="text-align:center">不可重复读</th>
+<th style="text-align:center">幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">读未提交(Read Uncommitted)</td>
+<td style="text-align:center">YES</td>
+<td style="text-align:center">YES</td>
+<td style="text-align:center">YES</td>
+</tr>
+<tr>
+<td style="text-align:left">读已提交(Read Committed)</td>
+<td style="text-align:center">NO</td>
+<td style="text-align:center">YES</td>
+<td style="text-align:center">YES</td>
+</tr>
+<tr>
+<td style="text-align:left">可重复读(Repeatable Read)</td>
+<td style="text-align:center">NO</td>
+<td style="text-align:center">NO</td>
+<td style="text-align:center">YES</td>
+</tr>
+<tr>
+<td style="text-align:left">可串行化(Serializable)</td>
+<td style="text-align:center">NO</td>
+<td style="text-align:center">NO</td>
+<td style="text-align:center">NO</td>
+</tr>
+</tbody>
+</table>
+<p>示例见SQL：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 事务与并发</span></span><br><span class="line"><span class="comment">-- 查看MySQL事务隔离级别，分为全局和当前回话</span></span><br><span class="line"><span class="comment">-- 取消autocommit</span></span><br><span class="line"><span class="keyword">set</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">"%autocommit%"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看隔离级别</span></span><br><span class="line"><span class="keyword">SELECT</span> @@global.tx_isolation;</span><br><span class="line"><span class="keyword">SELECT</span> @@session.tx_isolation;</span><br><span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'%iso%'</span>;</span><br><span class="line">+<span class="comment">---------------+-----------------+</span></span><br><span class="line">| Variable_name | Value           |</span><br><span class="line">+<span class="comment">---------------+-----------------+</span></span><br><span class="line">| tx_isolation  | REPEATABLE-READ |</span><br><span class="line">+<span class="comment">---------------+-----------------+</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">global</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'%iso%'</span>;</span><br><span class="line">+<span class="comment">---------------+-----------------+</span></span><br><span class="line">| Variable_name | Value           |</span><br><span class="line">+<span class="comment">---------------+-----------------+</span></span><br><span class="line">| tx_isolation  | REPEATABLE-READ |</span><br><span class="line">+<span class="comment">---------------+-----------------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 设置隔离级别</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">read</span> uncommitted;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">read</span> committed;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> repeatable <span class="keyword">read</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">serializable</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 事务操作</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span>;</span><br><span class="line"><span class="keyword">rollback</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">-- 测试表语句</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">database</span> <span class="keyword">test</span>;</span><br><span class="line"><span class="keyword">use</span> <span class="keyword">test</span>;</span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> <span class="string">`test`</span>;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`test`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`name`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`type`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`test`</span> <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">'吴瑞涛'</span>, <span class="string">'1'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`test`</span> <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">'李亚宁'</span>, <span class="string">'2'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`test`</span> <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="string">'邓景波'</span>, <span class="string">'1'</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`test`</span> <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">'孙振磊'</span>, <span class="string">'2'</span>);</span><br><span class="line"><span class="comment">-- 脏读示例</span></span><br><span class="line"><span class="comment">-- 两个窗口执行以下内容</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">test</span>;</span><br><span class="line"><span class="keyword">set</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">read</span> uncommitted;</span><br><span class="line"><span class="keyword">set</span> <span class="keyword">names</span> gbk;</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span>;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">--窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">test</span> <span class="keyword">set</span> <span class="keyword">type</span> = <span class="number">2</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">--窗口1,2</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 不可重复读示例</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">test</span>;</span><br><span class="line"><span class="keyword">set</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">read</span> committed;</span><br><span class="line"><span class="keyword">set</span> <span class="keyword">names</span> gbk;</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span>;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">--窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">test</span> <span class="keyword">set</span> <span class="keyword">type</span> = <span class="number">2</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span>;</span><br><span class="line"><span class="comment">-- 窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">--窗口1</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">-- 窗口2</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 幻读示例</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">test</span>;</span><br><span class="line"><span class="keyword">set</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> repeatable <span class="keyword">read</span>;</span><br><span class="line"><span class="keyword">set</span> <span class="keyword">names</span> gbk;</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span>;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">type</span> = <span class="number">2</span> \G;</span><br><span class="line"><span class="comment">--窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">type</span> = <span class="number">2</span> \G;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">test</span> <span class="keyword">set</span> <span class="keyword">type</span> = <span class="number">2</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">-- 窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">type</span> = <span class="number">2</span> \G;</span><br><span class="line"><span class="comment">--窗口2</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="Spring事务"><a href="#Spring事务" class="headerlink" title="Spring事务"></a>Spring事务</h2><p>参考文档：</p>
+<p><a href="https://www.ibm.com/developerworks/cn/education/opensource/os-cn-spring-trans/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/education/opensource/os-cn-spring-trans/</a></p>
+<p><a href="http://blog.csdn.net/hjm4702192/article/details/17277669" target="_blank" rel="noopener">http://blog.csdn.net/hjm4702192/article/details/17277669</a></p>
+<p>Spring事务通过AOP实现，允许指定隔离级别，传播属性，只读属性等。</p>
+<p>Spring事务传播行为：</p>
+<p>所谓事务的传播行为是指，如果在开始当前事务之前，一个事务上下文已经存在，此时有若干选项可以指定一个事务性方法的执行行为。在TransactionDefinition定义中包括了如下几个表示传播行为的常量：</p>
+<ul>
+<li>TransactionDefinition.PROPAGATION_REQUIRED：如果当前存在事务，则加入该事务；如果当前没有事务，则创建一个新的事务。</li>
+<li>TransactionDefinition.PROPAGATION_REQUIRES_NEW：创建一个新的事务，如果当前存在事务，则把当前事务挂起。</li>
+<li>TransactionDefinition.PROPAGATION_SUPPORTS：如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式继续运行。</li>
+<li>TransactionDefinition.PROPAGATION_NOT_SUPPORTED：以非事务方式运行，如果当前存在事务，则把当前事务挂起。</li>
+<li>TransactionDefinition.PROPAGATION_NEVER：以非事务方式运行，如果当前存在事务，则抛出异常。</li>
+<li>TransactionDefinition.PROPAGATION_MANDATORY：如果当前存在事务，则加入该事务；如果当前没有事务，则抛出异常。</li>
+<li>TransactionDefinition.PROPAGATION_NESTED：如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该取值等价于TransactionDefinition.PROPAGATION_REQUIRED。</li>
+</ul>
+<p>这里需要指出的是，前面的六种事务传播行为是 Spring 从 EJB 中引入的，他们共享相同的概念。而 PROPAGATION_NESTED是 Spring 所特有的。以 PROPAGATION_NESTED 启动的事务内嵌于外部事务中（如果存在外部事务的话），此时，内嵌事务并不是一个独立的事务，它依赖于外部事务的存在，只有通过外部的事务提交，才能引起内部事务的提交，嵌套的子事务不能单独提交。如果熟悉 JDBC 中的保存点（SavePoint）的概念，那嵌套事务就很容易理解了，其实嵌套的子事务就是保存点的一个应用，一个事务中可以包括多个保存点，每一个嵌套子事务。另外，外部事务的回滚也会导致嵌套子事务的回滚。</p>
+<p>事务的只读属性：</p>
+<p>事务的只读属性是指，对事务性资源进行只读操作或者是读写操作。所谓事务性资源就是指那些被事务管理的资源，比如数据源、 JMS 资源，以及自定义的事务性资源等等。如果确定只对事务性资源进行只读操作，那么我们可以将事务标志为只读的，以提高事务处理的性能。在 TransactionDefinition 中以 boolean 类型来表示该事务是否只读。</p>
+<p>参考配置：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!--数据源配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.druid"</span> <span class="attr">abstract</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"initialSize"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.initialSize&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxIdle"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.maxIdle&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"minIdle"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.minIdle&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxActive"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.maxActive&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"removeAbandoned"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.removeAbandoned&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"removeAbandonedTimeout"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.removeAbandonedTimeout&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxWait"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.maxWait&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"validationQuery"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.validationQuery&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"testOnBorrow"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.testOnBorrow&#125;"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 主库配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.datasource.M"</span> <span class="attr">parent</span>=<span class="string">"base.druid"</span> <span class="attr">class</span>=<span class="string">"com.alibaba.druid.pool.DruidDataSource"</span> <span class="attr">init-method</span>=<span class="string">"init"</span> <span class="attr">destroy-method</span>=<span class="string">"close"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"filters"</span> <span class="attr">value</span>=<span class="string">"slf4j"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"proxyFilters"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"zmc.cat.filter"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.driverClassName&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.base.url.master&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.base.username.master&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.base.password.master&#125;"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 从库配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.datasource.S"</span> <span class="attr">parent</span>=<span class="string">"base.druid"</span> <span class="attr">class</span>=<span class="string">"com.alibaba.druid.pool.DruidDataSource"</span> <span class="attr">init-method</span>=<span class="string">"init"</span> <span class="attr">destroy-method</span>=<span class="string">"close"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"filters"</span> <span class="attr">value</span>=<span class="string">"slf4j"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"proxyFilters"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"zmc.cat.filter"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.driverClassName&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.base.url.slave&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.base.username.slave&#125;"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.oracle.base.password.slave&#125;"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.sqlSessionFactory.M"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"base.datasource.M"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mapperLocations"</span> <span class="attr">value</span>=<span class="string">"classpath*:com/ziroom/zmc/base/dao/map/*.xml"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"configLocation"</span> <span class="attr">value</span>=<span class="string">"classpath:mybatis-config.xml"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.sqlSessionFactory.S"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"base.datasource.S"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mapperLocations"</span> <span class="attr">value</span>=<span class="string">"classpath*:com/ziroom/zmc/base/dao/map/*.xml"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"configLocation"</span> <span class="attr">value</span>=<span class="string">"classpath:mybatis-config.xml"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.writeSqlSessionTemplate.M"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionTemplate"</span> <span class="attr">scope</span>=<span class="string">"prototype"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"0"</span> <span class="attr">ref</span>=<span class="string">"base.sqlSessionFactory.M"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.writeSqlSessionTemplate.S"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionTemplate"</span> <span class="attr">scope</span>=<span class="string">"prototype"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">"0"</span> <span class="attr">ref</span>=<span class="string">"base.sqlSessionFactory.S"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- Mybatis主从支持 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.MybatisDaoContext"</span> <span class="attr">class</span>=<span class="string">"com.asura.framework.dao.mybatis.base.MybatisDaoContext"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"writeSqlSessionTemplate"</span> <span class="attr">ref</span>=<span class="string">"base.writeSqlSessionTemplate.M"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"readSqlSessionTemplate"</span> <span class="attr">ref</span>=<span class="string">"base.writeSqlSessionTemplate.S"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 事务管理器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"base.transactionManager"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"base.datasource.M"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> <span class="tag">&lt;<span class="name">tx:advice</span> <span class="attr">id</span>=<span class="string">"base.txAdvice"</span> <span class="attr">transaction-manager</span>=<span class="string">"base.transactionManager"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tx:attributes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"save*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"add*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"create*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"insert*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"update*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"merge*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"del*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"remove*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"get*"</span> <span class="attr">read-only</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"find*"</span> <span class="attr">read-only</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tx:attributes</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">tx:advice</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">aop:config</span> <span class="attr">expose-proxy</span>=<span class="string">"true"</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 只对业务逻辑层实施事务 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">id</span>=<span class="string">"txPointcut"</span> <span class="attr">expression</span>=<span class="string">"execution(* com..service..*.*(..))"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:advisor</span> <span class="attr">advice-ref</span>=<span class="string">"base.txAdvice"</span> <span class="attr">pointcut-ref</span>=<span class="string">"txPointcut"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="使用事务的注意事项"><a href="#使用事务的注意事项" class="headerlink" title="使用事务的注意事项"></a>使用事务的注意事项</h2><p>事务的目的是：</p>
+<ol>
+<li>为数据库操作序列提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。</li>
+<li>当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互相干扰。</li>
+</ol>
+<p>所以我们定义事务注意事项如下：</p>
+<ul>
+<li>需要考虑业务的最小粒度，一些附加信息是否要放在事物内，例如循环插入100个员工数据，每个员工的成功保存是应该考虑的，而不是我们需要保证100个同时成功；</li>
+<li>严禁事务中夹杂HTTP调用，发邮件等拖慢事务的操作；事务是数据库概念，数据库只需考虑增删改查的成功即可，其他业务放在外层做；</li>
+</ul>
+<h2 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h2><p>并发会带来什么问题：</p>
+<ol>
+<li>并发量大的情况下，会拖慢网络速度，例如年会的Gogoda活动；</li>
+<li>并发量大的情况下，用户的数据可能会乱掉，例如多个用户同时兑换一张优惠券，两个亲戚同时在柜台给一张银行卡的卡主存钱。</li>
+</ol>
+<p>在此处，我们只讨论第二种情况带来的数据一致性问题。</p>
+<p>如何解决并发的数据安全问题：</p>
+<h3 id="数据库锁"><a href="#数据库锁" class="headerlink" title="数据库锁"></a>数据库锁</h3><p>Oracle和MySQL（InnoDB引擎下）的数据库都支持数据库的行级锁，行级锁可以在尽量保证并发的情况下保证数据安全性。</p>
+<p>参考链接：</p>
+<p><a href="http://chenzhou123520.iteye.com/blog/1860954" target="_blank" rel="noopener">http://chenzhou123520.iteye.com/blog/1860954</a></p>
+<p><a href="http://solitary.iteye.com/blog/1396667" target="_blank" rel="noopener">http://solitary.iteye.com/blog/1396667</a></p>
+<p>MySQL行级锁示例：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 行级锁示例</span></span><br><span class="line"><span class="keyword">use</span> <span class="keyword">test</span>;</span><br><span class="line"><span class="keyword">set</span> autocommit=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">read</span> committed;</span><br><span class="line"><span class="keyword">set</span> <span class="keyword">names</span> gbk;</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span>;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">-- 窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> <span class="keyword">for</span> <span class="keyword">update</span>;</span><br><span class="line"><span class="comment">-- 窗口2</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> \G;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">2</span> <span class="keyword">for</span> <span class="keyword">update</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span> <span class="keyword">for</span> <span class="keyword">update</span>;</span><br><span class="line"><span class="comment">-- 窗口1</span></span><br><span class="line"><span class="keyword">update</span> <span class="keyword">test</span> <span class="keyword">set</span> <span class="keyword">type</span> = <span class="number">2</span> <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">-- 观察窗口2，已获取数据信息</span></span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>使用数据库行级锁的注意事项：</p>
+<ul>
+<li>查询列的条件必须包含索引或主键，建议使用主键作为锁条件；</li>
+<li>如果业务数据中有判断，请放在加锁之后做，放在加锁之前是没有意义的，例如银行卡扣款；</li>
+<li>使用时尽量确保查询结果有一条或没有数据，多行锁可能导致死锁。</li>
+<li>注意主从，确保从主库查询需要做判断的数据。</li>
+</ul>
+<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>如果保证数据一致性有多条，那么此处可以使用分布式锁来解决，例如保洁阿姨的日程。</p>
+<p>使用Redis实现分布式锁示例代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"> <span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Copyright (c) 2015. ziroom.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">package</span> com.asura.framework.cache.redisOne;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.asura.framework.utils.LogUtil;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;分布式锁工具&lt;/p&gt;</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * &lt;PRE&gt;</span></span><br><span class="line"><span class="comment"> * &lt;BR&gt;    修改记录</span></span><br><span class="line"><span class="comment"> * &lt;BR&gt;-----------------------------------------------</span></span><br><span class="line"><span class="comment"> * &lt;BR&gt;    修改日期         修改人          修改内容</span></span><br><span class="line"><span class="comment"> * &lt;/PRE&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> sunzhenlei</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2015/9/7 10:42</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisSentinelLockHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Logger LOGGER = LoggerFactory.getLogger(RedisSentinelLockHandler.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取锁重试次数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> WAIT_COUNT = <span class="number">50</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取锁重试间隔，毫秒</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> RETRY_INTERVAL = <span class="number">50</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 锁前缀</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String LOCK_KEY_PREFIX = <span class="string">"lock_key_"</span>;</span><br><span class="line"></span><br><span class="line">    RedisOperations redisOperations;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取分布式锁</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> lockKey</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">getLock</span><span class="params">(String lockKey)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getLock(lockKey, WAIT_COUNT * RETRY_INTERVAL);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取分布式锁</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> lockKey 锁key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeout 超时时间，毫秒</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">getLock</span><span class="params">(String lockKey, <span class="keyword">int</span> timeout)</span> </span>&#123;</span><br><span class="line">        String key = LOCK_KEY_PREFIX + lockKey;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; timeout / RETRY_INTERVAL; i++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (redisOperations.setnx(key, String.valueOf(<span class="number">1</span>), timeout)) &#123;</span><br><span class="line">                    LogUtil.debug(LOGGER, <span class="string">"get lock success : key is &#123;&#125;"</span>, key);</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    LogUtil.debug(LOGGER, <span class="string">"get lock failure : key is &#123;&#125;, count is &#123;&#125;"</span>, key, i);</span><br><span class="line">                    Thread.sleep(RETRY_INTERVAL);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            LogUtil.debug(LOGGER, <span class="string">"get lock throw an exception key is &#123;&#125;, exception : &#123;&#125;"</span>, key, e);</span><br><span class="line">        &#125;</span><br><span class="line">        LogUtil.debug(LOGGER, <span class="string">"get lock failure : key is &#123;&#125;"</span>, key);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 释放分布式锁</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> lockKey</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">releaseLock</span><span class="params">(String lockKey)</span> </span>&#123;</span><br><span class="line">        String key = LOCK_KEY_PREFIX + lockKey;</span><br><span class="line">        redisOperations.del(key);</span><br><span class="line">        LogUtil.debug(LOGGER, <span class="string">"delete lock success : key is &#123;&#125;"</span>, key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RedisOperations <span class="title">getRedisOperations</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> redisOperations;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRedisOperations</span><span class="params">(RedisOperations redisOperations)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.redisOperations = redisOperations;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用分布式锁注意事项</p>
+<ul>
+<li>判断数据的条件放入锁之内，防止数据异常（通数据库锁第一条，可做两重判断，锁外，锁内）；</li>
+<li>锁应该确保数据提交完毕后释放，即分布式锁应该在事务之外；</li>
+<li>确保锁条件单一性，不能同时锁住多个数据片信息，例如同时锁定保洁阿姨A和B和C的日程，会造成死锁。</li>
+<li>锁一定要有超时时间，否则会导致死锁。</li>
+</ul>
+<h3 id="其他未在代码中实现的方案："><a href="#其他未在代码中实现的方案：" class="headerlink" title="其他未在代码中实现的方案："></a>其他未在代码中实现的方案：</h3><p>队列：确保数据的更新顺序。</p>
+<p>待补充。</p>
+
+                <hr>
+                
+
+                <ul class="pager">
+                    
+                    
+                    <li class="next">
+                        <a href="/2016/01/11/2016-01-11-tomcat-port/" data-toggle="tooltip" data-placement="top"
+                           title="获取tomcat端口号的三种方式">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+
+                
+
+
+                <!--加入新的评论系统-->
+                
+            </div>
+
+            <div class="hidden-xs col-sm-3 toc-col">
+                <div class="toc-wrap">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#事务是什么"><span class="toc-text">事务是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务的隔离级别"><span class="toc-text">事务的隔离级别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#隔离级别与一致性"><span class="toc-text">隔离级别与一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring事务"><span class="toc-text">Spring事务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用事务的注意事项"><span class="toc-text">使用事务的注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发"><span class="toc-text">并发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库锁"><span class="toc-text">数据库锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式锁"><span class="toc-text">分布式锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#其他未在代码中实现的方案："><span class="toc-text">其他未在代码中实现的方案：</span></a></li></ol></li></ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5 class="text-center">
+                        <a href="/tags/">FEATURED TAGS</a>
+                    </h5>
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Java"
+                           title="Java">Java</a>
+                        
+                        <a class="tag" href="/tags/#事务"
+                           title="事务">事务</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+
+    </div>
+</article>
+
+
+
+
+
+
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <br>
+                <ul class="list-inline text-center">
+                
+                
+                    <li>
+                        <a target="_blank" href="https://twitter.com/wrt2011">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/happytao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/314121000">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/happy-tao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 陶陶滔滔涛 2018
+                    <br>
+                    <span id="busuanzi_container_site_pv" style="font-size: 12px;">PV: <span id="busuanzi_value_site_pv"></span> Times</span>
+                    <br>
+                    Theme by <a href="https://haojen.github.io/">Haojen Ma</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/blog.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://haojen.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-71854041-1';
+    var _gaDomain = 'ruitao.name';
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- swiftype -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','','2.0.0');
+</script>
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<!--wechat title img-->
+<img class="wechat-title-img" src="http://ww1.sinaimg.cn/large/4a77b961gy1fo6xl4hej6j20hs0hsdh5.jpg">
+</body>
+
+</html>

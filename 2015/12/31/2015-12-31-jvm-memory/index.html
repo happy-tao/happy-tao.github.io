@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="陶陶滔滔涛的博客">
+    <meta name="keyword" content="陶陶滔滔涛, ruitao, Java">
+    <meta name="theme-color" content="#600090">
+    <meta name="msapplication-navbutton-color" content="#600090">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#600090">
+    <link rel="shortcut icon" href="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-person-128.png">
+    <link rel="alternate" type="application/atom+xml" title="陶陶滔滔涛" href="/atom.xml">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
+    <title>
+        
+        JVM内存简介｜陶陶滔滔涛的博客
+        
+    </title>
+
+    <link rel="canonical" href="http://haojen.github.io/2015/12/31/2015-12-31-jvm-memory/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/blog-style.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+
+<style>
+
+    header.intro-header {
+        background-image: url('//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80')
+    }
+</style>
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="" class="animated fadeIn">
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top " id="nav-top" data-ispost = "true" data-istags="false
+" data-ishome = "false" >
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand animated pulse" href="/">
+                <span class="brand-logo">
+                    陶陶滔滔涛
+                </span>
+                的博客
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <!-- /.navbar-collapse -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">首页</a>
+                    </li>
+					
+                    
+                        
+							
+                        <li>
+                            <a href="/tags/">标签</a>
+                        </li>
+							
+						
+                    
+					
+					
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+//    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+<!-- Main Content -->
+
+<!--only post-->
+
+
+<img class="wechat-title-img"
+     src="//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80">
+
+
+<style>
+    
+    header.intro-header {
+        background-image: url('//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80')
+    }
+
+    
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <div class="post-heading">
+                    <h1>JVM内存简介</h1>
+                    
+                    <span class="meta">
+                         作者 陶陶滔滔涛
+                        <span>
+                          日期 2015-12-31
+                         </span>
+                    </span>
+                    <div class="tags text-center">
+                        
+                        <a class="tag" href="/tags/#Java"
+                           title="Java">Java</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="post-title-haojen">
+        <span>
+            JVM内存简介
+        </span>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <!-- Post Container -->
+            <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
+                <p>在开发中，经常会碰到内存溢出等异常，这篇文章来了解一下Java的内存机制，以及简单的配置参数。</p>
+<h2 id="Java虚拟机内存组成"><a href="#Java虚拟机内存组成" class="headerlink" title="Java虚拟机内存组成"></a>Java虚拟机内存组成</h2><p>Java虚拟机的内存包含以下两个部分：</p>
+<ul>
+<li>堆内存（Heap），这个里面存放了所有的类实例和数组，Java代码中所有的new操作产生的对象都存在这里</li>
+<li>非堆内存（Non-Heap），这个地方被Java自己使用，方法区，JVM内部处理优化所需的内存，每个类结构以及方法和构造方法</li>
+<li>Java本地内存，这个地方存放了Java运行时自身所必须的一些东西。</li>
+</ul>
+<a id="more"></a>
+<p><img src="http://ww1.sinaimg.cn/large/4a77b961jw1ezj0g4abmtj20sb0br765.jpg" alt=""></p>
+<h2 id="堆内存"><a href="#堆内存" class="headerlink" title="堆内存"></a>堆内存</h2><p><img src="http://ww1.sinaimg.cn/large/4a77b961jw1ezj17jennrj20hs052gm8.jpg" alt=""></p>
+<p>堆内存由新生代（Young Generation）和老生代（Old Generation）两个部分。其中新生代又包含Eden和两个存活带（Survivor Space）。</p>
+<ul>
+<li>Eden区域存放新生的对象</li>
+<li>Survivor Space有两个，From和To，存放每次垃圾回收之后存活的对象</li>
+</ul>
+<p>老生代主要存放应用程序中生命周期长的存活对象</p>
+<h2 id="年轻代GC和内存分配"><a href="#年轻代GC和内存分配" class="headerlink" title="年轻代GC和内存分配"></a>年轻代GC和内存分配</h2><p>HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分别叫from和to）。默认比例为8：1，接下来我们会聊到。一般情况下，新创建的对象都会被分配到Eden区(一些大对象特殊处理),这些对象经过第一次GC后，如果仍然存活，将会被移到Survivor区。对象在Survivor区中每熬过一次Minor GC，年龄就会增加1岁，当它的年龄增加到一定程度时，就会被移动到年老代中。</p>
+<p>在GC开始的时候，对象只会存在于Eden区和名为“From”的Survivor区，Survivor区“To”是空的。紧接着进行GC，Eden区中所有存活的对象都会被复制到“To”，而在“From”区中，仍存活的对象会根据他们的年龄值来决定去向。年龄达到一定值(年龄阈值，可以通过-XX:MaxTenuringThreshold来设置)的对象会被移动到年老代中，没有达到阈值的对象会被复制到“To”区域。经过这次GC后，Eden区和From区已经被清空。这个时候，“From”和“To”会交换他们的角色，也就是新的“To”就是上次GC前的“From”，新的“From”就是上次GC前的“To”。不管怎样，都会保证名为To的Survivor区域是空的。Minor GC会一直重复这样的过程，直到“To”区被填满，“To”区被填满之后，会将所有对象移动到年老代中。</p>
+<p><img src="http://ww1.sinaimg.cn/large/4a77b961jw1ezixsbwnvhj20n109lgmf.jpg" alt=""></p>
+<p>上图演示GC过程，黄色表示死对象，绿色表示剩余空间，红色表示幸存对象</p>
+<p>我是一个普通的java对象，我出生在Eden区，在Eden区我还看到和我长的很像的小兄弟，我们在Eden区中玩了挺长时间。有一天Eden区中的人实在是太多了，我就被迫去了Survivor区的“From”区，自从去了Survivor区，我就开始漂了，有时候在Survivor的“From”区，有时候在Survivor的“To”区，居无定所。直到我18岁的时候，爸爸说我成人了，该去社会上闯闯了。于是我就去了年老代那边，年老代里，人很多，并且年龄都挺大的，我在这里也认识了很多人。在年老代里，我生活了20年(每次GC加一岁)，然后被回收。</p>
+<p>参数：</p>
+<ul>
+<li>-Xms    堆的最小值</li>
+<li>-Xmx    堆的最大值</li>
+<li>-XX:MaxNewSize    年轻代的最大内存大小</li>
+<li>-XX:NewSize    年轻代初始化内存大小</li>
+<li>-XX:NewRatio    设置新生代和老生代的相对大小，例如 -XX:NewRatio=3 指定老年代/新生代为3/1. 老年代占堆大小的3/4，新生代占1/4</li>
+<li>-XX:SurvivorRatio    设置Eden区和Survivor的比例大小，-XX:SurvivorRatio=10 表示Eden是幸存区To大小的10倍(也是幸存区From的10倍).所以,伊甸园区(Eden)占新生代大小的10/12,幸存区From和幸存区To每个占新生代的1/12.注意,两个幸存区永远是一样大的</li>
+<li>-XX:+PrintTenuringDistribution    指定JVM 在每次新生代GC时，输出幸存区中对象的年龄分布</li>
+<li>-XX:InitialTenuringThreshold    老生代阈值初始大小</li>
+<li>-XX:MaxTenuringThreshold    老生代阈值最大值</li>
+<li>-XX:TargetSurvivorRatio    幸存区目标使用率，如果超出使用率，会重新设置老生阈值，否则以最大值为准。</li>
+</ul>
+<h2 id="非堆内存"><a href="#非堆内存" class="headerlink" title="非堆内存"></a>非堆内存</h2><p>非堆内存也被成为方法区，永久代。方法区是JVM中所有线程共享的内存区，存储已被虚拟机加载的类信息、常量、静态变量、即时编译后的代码等数据。</p>
+<p>参数：</p>
+<ul>
+<li>-XX:PermSize    堆内存初始值</li>
+<li>-XX:MaxPermSize    堆内存最大值</li>
+</ul>
+<p>##参考<br><a href="http://www.cnblogs.com/redcreen/archive/2011/05/04/2036387.html" target="_blank" rel="noopener">http://www.cnblogs.com/redcreen/archive/2011/05/04/2036387.html</a></p>
+<p><a href="http://www.cnblogs.com/zhguang/p/java-jvm-gc.html" target="_blank" rel="noopener">http://www.cnblogs.com/zhguang/p/java-jvm-gc.html</a></p>
+<p><a href="http://ifeve.com/jvm-yong-generation/" target="_blank" rel="noopener">http://ifeve.com/jvm-yong-generation/</a></p>
+<p><a href="http://m.oschina.net/blog/55010" target="_blank" rel="noopener">http://m.oschina.net/blog/55010</a></p>
+<p><a href="http://mzorro.me/2015/08/26/jvm-memory-and-gc/" target="_blank" rel="noopener">http://mzorro.me/2015/08/26/jvm-memory-and-gc/</a></p>
+<p><a href="http://www.pointsoftware.ch/en/cookbook-jvm-memory-arguments/" target="_blank" rel="noopener">http://www.pointsoftware.ch/en/cookbook-jvm-memory-arguments/</a></p>
+<p><a href="https://www.yourkit.com/docs/kb/sizes.jsp" target="_blank" rel="noopener">https://www.yourkit.com/docs/kb/sizes.jsp</a></p>
+
+                <hr>
+                
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2016/01/11/2016-01-11-tomcat-port/" data-toggle="tooltip" data-placement="top"
+                           title="获取tomcat端口号的三种方式">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2015/12/30/2015-12-30-daili/" data-toggle="tooltip" data-placement="top"
+                           title="扒一扒这些年我用过的梯子">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+
+                
+
+
+                <!--加入新的评论系统-->
+                
+            </div>
+
+            <div class="hidden-xs col-sm-3 toc-col">
+                <div class="toc-wrap">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java虚拟机内存组成"><span class="toc-text">Java虚拟机内存组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#堆内存"><span class="toc-text">堆内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#年轻代GC和内存分配"><span class="toc-text">年轻代GC和内存分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#非堆内存"><span class="toc-text">非堆内存</span></a></li></ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5 class="text-center">
+                        <a href="/tags/">FEATURED TAGS</a>
+                    </h5>
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Java"
+                           title="Java">Java</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+
+    </div>
+</article>
+
+
+
+
+
+
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <br>
+                <ul class="list-inline text-center">
+                
+                
+                    <li>
+                        <a target="_blank" href="https://twitter.com/wrt2011">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/happytao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/314121000">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/happy-tao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 陶陶滔滔涛 2018
+                    <br>
+                    <span id="busuanzi_container_site_pv" style="font-size: 12px;">PV: <span id="busuanzi_value_site_pv"></span> Times</span>
+                    <br>
+                    Theme by <a href="https://haojen.github.io/">Haojen Ma</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/blog.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://haojen.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-71854041-1';
+    var _gaDomain = 'ruitao.name';
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- swiftype -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','','2.0.0');
+</script>
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<!--wechat title img-->
+<img class="wechat-title-img" src="http://ww1.sinaimg.cn/large/4a77b961gy1fo6xl4hej6j20hs0hsdh5.jpg">
+</body>
+
+</html>

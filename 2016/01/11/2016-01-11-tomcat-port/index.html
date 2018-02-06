@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="陶陶滔滔涛的博客">
+    <meta name="keyword" content="陶陶滔滔涛, ruitao, Java">
+    <meta name="theme-color" content="#600090">
+    <meta name="msapplication-navbutton-color" content="#600090">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#600090">
+    <link rel="shortcut icon" href="https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-person-128.png">
+    <link rel="alternate" type="application/atom+xml" title="陶陶滔滔涛" href="/atom.xml">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
+    <title>
+        
+        获取tomcat端口号的三种方式｜陶陶滔滔涛的博客
+        
+    </title>
+
+    <link rel="canonical" href="http://haojen.github.io/2016/01/11/2016-01-11-tomcat-port/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/blog-style.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+</head>
+
+<style>
+
+    header.intro-header {
+        background-image: url('//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80')
+    }
+</style>
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="" class="animated fadeIn">
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top " id="nav-top" data-ispost = "true" data-istags="false
+" data-ishome = "false" >
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand animated pulse" href="/">
+                <span class="brand-logo">
+                    陶陶滔滔涛
+                </span>
+                的博客
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <!-- /.navbar-collapse -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">首页</a>
+                    </li>
+					
+                    
+                        
+							
+                        <li>
+                            <a href="/tags/">标签</a>
+                        </li>
+							
+						
+                    
+					
+					
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+//    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+<!-- Main Content -->
+
+<!--only post-->
+
+
+<img class="wechat-title-img"
+     src="//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80">
+
+
+<style>
+    
+    header.intro-header {
+        background-image: url('//oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/800/h/300/interlace/1/q/80')
+    }
+
+    
+</style>
+
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <div class="post-heading">
+                    <h1>获取tomcat端口号的三种方式</h1>
+                    
+                    <span class="meta">
+                         作者 陶陶滔滔涛
+                        <span>
+                          日期 2016-01-11
+                         </span>
+                    </span>
+                    <div class="tags text-center">
+                        
+                        <a class="tag" href="/tags/#Java"
+                           title="Java">Java</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="post-title-haojen">
+        <span>
+            获取tomcat端口号的三种方式
+        </span>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <!-- Post Container -->
+            <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
+                <p>获取tomcat的端口号一般有三种方式：</p>
+<ol>
+<li>request直接获取</li>
+<li>读取Tomcat的配置文件获取</li>
+<li>通过Tomcat的Mbean获取</li>
+</ol>
+<a id="more"></a>
+<h2 id="request直接获取"><a href="#request直接获取" class="headerlink" title="request直接获取"></a>request直接获取</h2><p>这种方式没什么可说的，就是通过ServletRequest中的<strong>getLocalPort</strong>或者<strong>getServerPort</strong>获取。</p>
+<p>这里的问题在于getLocalPort和getServerPort两个方法的区别。</p>
+<p>参考官方文档，getLocalPort获取的是接收方的端口号。getServerPort获取的是发送方的端口号。这两个东西是有可能不一样的。</p>
+<p>例如：</p>
+<ul>
+<li>用户直接访问tomcat服务器（8080)，这里getLocalPort和getServerPort得到的端口号都是8080。</li>
+<li>服务端采用nginx（80）+tomcat（8080）架构，这里的getLocalPort是tomcat的端口号8080，getServerPort是nginx的端口号（80），既用户直接访问的端口号。</li>
+</ul>
+<h2 id="读取tomcat的配置文件获取"><a href="#读取tomcat的配置文件获取" class="headerlink" title="读取tomcat的配置文件获取"></a>读取tomcat的配置文件获取</h2><p>这种方式的关键点有两处：</p>
+<ol>
+<li>如何获取tomcat的绝对路径</li>
+<li>如何读取XML</li>
+</ol>
+<p>tomcat的绝对路径可以使用<strong>ServletContext</strong>来获取。这个对象在Servlet，Filter，Listener等中都有出现。</p>
+<figure class="highlight java"><figcaption><span>Servlet中获得ServletContext:</span><a href="http://ruitao.name" target="_blank" rel="noopener">link</a></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        ServletContext sc = request.getServletContext();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>ServletContextListener中获取ServletContext：</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestListener</span> <span class="keyword">implements</span> <span class="title">ServletContextListener</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextInitialized</span><span class="params">(ServletContextEvent event)</span> </span>&#123;</span><br><span class="line">        ServletContext sc = event.getServletContext();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>Filter中获取ServletContext：</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig config)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">        ServletContext sc = config.getServletContext();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>ServletContext中获取realPath：</span></figcaption><table><tr><td class="code"><pre><span class="line">String realPath = sc.getRealPath(<span class="string">"/"</span>);</span><br></pre></td></tr></table></figure>
+<p>关于读取XML，网上有很多相关的介绍，就不在这里说明了。</p>
+<h2 id="通过Tomcat的Mbean获取"><a href="#通过Tomcat的Mbean获取" class="headerlink" title="通过Tomcat的Mbean获取"></a>通过Tomcat的Mbean获取</h2><p>Tomcat实现了MBean。我们可以使用相应的MBean的方式获得Tomcat的一些配置参数。</p>
+<figure class="highlight java"><figcaption><span>Mbean获取Tomcat的端口号</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by wurt on 2016/1/11.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TomcatConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">getHttpPort</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            MBeanServer server = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">if</span> (MBeanServerFactory.findMBeanServer(<span class="keyword">null</span>).size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                server = MBeanServerFactory.findMBeanServer(<span class="keyword">null</span>).get(<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Set names = server.queryNames(<span class="keyword">new</span> ObjectName(<span class="string">"Catalina:type=Connector,*"</span>), <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">            Iterator iterator = names.iterator();</span><br><span class="line">            ObjectName name = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                name = (ObjectName) iterator.next();</span><br><span class="line"></span><br><span class="line">                String protocol = server.getAttribute(name, <span class="string">"protocol"</span>).toString();</span><br><span class="line">                String scheme = server.getAttribute(name, <span class="string">"scheme"</span>).toString();</span><br><span class="line">                String port = server.getAttribute(name, <span class="string">"port"</span>).toString();</span><br><span class="line">                System.out.println(protocol + <span class="string">" : "</span> + scheme + <span class="string">" : "</span> + port);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在tomcat中运行，结果如下：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">HTTP/1.1 : http : 8088</span><br><span class="line">AJP/1.3 : http : 8009</span><br></pre></td></tr></table></figure></p>
+<p>这两个端口号正是我在server.xml中配置的端口号。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://stackoverflow.com/questions/2184286/difference-between-getlocalport-and-getserverport-in-servlets" target="_blank" rel="noopener">http://stackoverflow.com/questions/2184286/difference-between-getlocalport-and-getserverport-in-servlets</a></p>
+<p><a href="http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html" target="_blank" rel="noopener">http://docs.oracle.com/javaee/6/api/javax/servlet/ServletRequest.html</a></p>
+<p><a href="https://tomcat.apache.org/tomcat-7.0-doc/funcspecs/mbean-names.html" target="_blank" rel="noopener">https://tomcat.apache.org/tomcat-7.0-doc/funcspecs/mbean-names.html</a></p>
+<p><a href="http://suhuanzheng7784877.iteye.com/blog/1187356" target="_blank" rel="noopener">http://suhuanzheng7784877.iteye.com/blog/1187356</a></p>
+<p><a href="http://blog.csdn.net/nieyinyin/article/details/7469088" target="_blank" rel="noopener">http://blog.csdn.net/nieyinyin/article/details/7469088</a></p>
+
+                <hr>
+                
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2017/03/03/2017-03-03-transaction/" data-toggle="tooltip" data-placement="top"
+                           title="事务与并发">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2015/12/31/2015-12-31-jvm-memory/" data-toggle="tooltip" data-placement="top"
+                           title="JVM内存简介">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+
+                
+
+
+                <!--加入新的评论系统-->
+                
+            </div>
+
+            <div class="hidden-xs col-sm-3 toc-col">
+                <div class="toc-wrap">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#request直接获取"><span class="toc-text">request直接获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#读取tomcat的配置文件获取"><span class="toc-text">读取tomcat的配置文件获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过Tomcat的Mbean获取"><span class="toc-text">通过Tomcat的Mbean获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Container -->
+
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <!-- no hr -->
+                    <h5 class="text-center">
+                        <a href="/tags/">FEATURED TAGS</a>
+                    </h5>
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Java"
+                           title="Java">Java</a>
+                        
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+            </div>
+        </div>
+
+    </div>
+</article>
+
+
+
+
+
+
+
+<!-- Footer -->
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
+                <br>
+                <ul class="list-inline text-center">
+                
+                
+                    <li>
+                        <a target="_blank" href="https://twitter.com/wrt2011">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/happytao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+                    <li>
+                        <a target="_blank" href="http://weibo.com/314121000">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                
+                    <li>
+                        <a target="_blank"  href="https://github.com/happy-tao">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                
+
+                
+
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; 陶陶滔滔涛 2018
+                    <br>
+                    <span id="busuanzi_container_site_pv" style="font-size: 12px;">PV: <span id="busuanzi_value_site_pv"></span> Times</span>
+                    <br>
+                    Theme by <a href="https://haojen.github.io/">Haojen Ma</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/blog.js"></script>
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("http://haojen.github.io/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("//cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+<!-- Google Analytics -->
+
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-71854041-1';
+    var _gaDomain = 'ruitao.name';
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+<!-- Baidu Tongji -->
+
+
+<!-- swiftype -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','','2.0.0');
+</script>
+
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<!--wechat title img-->
+<img class="wechat-title-img" src="http://ww1.sinaimg.cn/large/4a77b961gy1fo6xl4hej6j20hs0hsdh5.jpg">
+</body>
+
+</html>
