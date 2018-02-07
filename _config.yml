@@ -68,16 +68,7 @@ featured-tags: true                     # whether or not using Feature-Tags
 featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
 
 # friends 友链
-friends: [
-    {
-        title: "Google",
-        href: "https://go.ruitao.name"
-    },
-    {
-        title: "IDEA激活",
-        href: "http://idea.ruitao.name"
-    }
-]
+friends:
 
 # Directory
 source_dir: source
