@@ -67,8 +67,17 @@ sidebar-avatar: http://ww1.sinaimg.cn/large/4a77b961gy1fo6xl4hej6j20hs0hsdh5.jpg
 featured-tags: true                     # whether or not using Feature-Tags
 featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
 
-# friends
-friends:  # 友链
+# friends 友链
+friends: [
+    {
+        title: "Google",
+        href: "https://go.ruitao.name"
+    },
+    {
+        title: "IDEA激活",
+        href: "http://idea.ruitao.name"
+    }
+]
 
 # Directory
 source_dir: source

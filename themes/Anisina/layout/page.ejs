@@ -252,12 +252,14 @@ layout: layout
             <% if(config['featured-tags']) { %>
             <section>
                 <div class="tags">
-                    <% site.tags.map(function(tag){ %>
+                    <!--<% site.tags.map(function(tag){ %>
                     <% if(tag.length > config['featured-condition-size']) { %>
                     <a href="<%= config.root %>tags/#<%= tag.name %>" title="<%= tag.name %>"
                        rel="<%= tag.length %>"><%= tag.name %></a>
                     <% } %>
-                    <% }) %>
+                    <% }) %>-->
+                    <a href=javascript:void(0) title="Java" >Java</a>
+                    <a href=javascript:void(0) title="台球" >台球</a>
                 </div>
             </section>
             <% } %>
