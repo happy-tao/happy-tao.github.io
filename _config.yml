@@ -153,7 +153,7 @@ post-default-img-mobile: //oco8bvfr8.qnssl.com/16-8-new-bg.jpg?imageView2/1/w/80
 swiftype_key: 
 
 
-# archive page title 
+# archive page title
 archive:
-    title: archives
+    title: 归档
     description: 可以根据归档日期检索所有文件
