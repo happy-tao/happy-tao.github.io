@@ -6,8 +6,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="陶陶滔滔涛的博客">
-    <meta name="keyword" content="陶陶滔滔涛, ruitao, Java">
+    <meta name="description" content="使用Hexo创建博客,陶陶滔滔涛的博客">
+    <meta name="keywords" content="陶陶滔滔涛, ruitao, Java, Hexo">
     <meta name="theme-color" content="#600090">
     <meta name="msapplication-navbutton-color" content="#600090">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,11 +18,11 @@
     <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
     <title>
         
-        扒一扒这些年我用过的梯子｜陶陶滔滔涛的博客
+        使用Hexo创建博客｜陶陶滔滔涛的博客
         
     </title>
 
-    <link rel="canonical" href="http://ruitao.name/2015/12/30/2015-12-30-daili/">
+    <link rel="canonical" href="http://ruitao.name/2018/02/08/2018-02-08-hexo/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -145,18 +145,18 @@
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
                 <div class="post-heading">
-                    <h1>扒一扒这些年我用过的梯子</h1>
+                    <h1>使用Hexo创建博客</h1>
                     
                     <span class="meta">
                          作者 陶陶滔滔涛
                         <span>
-                          日期 2015-12-30
+                          日期 2018-02-08
                          </span>
                     </span>
                     <div class="tags text-center">
                         
-                        <a class="tag" href="/tags/#翻墙"
-                           title="翻墙">翻墙</a>
+                        <a class="tag" href="/tags/#Hexo"
+                           title="Hexo">Hexo</a>
                         
                     </div>
                 </div>
@@ -165,7 +165,7 @@
     </div>
     <div class="post-title-haojen">
         <span>
-            扒一扒这些年我用过的梯子
+            使用Hexo创建博客
         </span>
     </div>
 </header>
@@ -176,47 +176,56 @@
         <div class="row">
             <!-- Post Container -->
             <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
-                <p>墙越来越高，这些年，想看看外边的世界都是需要技术含量的。想当初那种简单的梯子早已不存在。这篇文章就来说一说这些年我用的梯子。</p>
-<h2 id="HTTP代理"><a href="#HTTP代理" class="headerlink" title="HTTP代理"></a>HTTP代理</h2><p>代理是介于浏览器和要访问网站的中转站。</p>
-<p>想当年玩HTTP代理的时候还是初中，那时候用迅雷下载一个东西，搜索一下不同的代理填进去，速度就截然不同。那种感觉还是挺爽的。</p>
-<p>现在HTTP代理也广泛的用在梯子技术里。goagent，Shadowsocks的某些windows客户端实现等，都用到了HTTP代理作为用户和服务器之前的中转。</p>
-<h2 id="Google-IPV6-Host"><a href="#Google-IPV6-Host" class="headerlink" title="Google IPV6 Host"></a>Google IPV6 Host</h2><p>用到这个大概是2009年的大学时代，那个时候是大学期间，教育网是支持IPV6的，而GFW的封锁是针对于IPV4的，这样子就可以把大部分Google和Facebook的IP通过HOST文件的方式强制解析到IPV6，速度非常快。</p>
-<p>这个东西现在依然存在：<a href="https://github.com/lennylxx/ipv6-hosts" target="_blank" rel="noopener">https://github.com/lennylxx/ipv6-hosts</a></p>
-<p>这种方式的劣势是太依赖与自己所在的网络环境，而且除了大厂被墙的内容能够访问，其他的没有hosts的依旧不行。</p>
-<p>和这种方式原理相似的还有Google Host，不过现在Google的IPV4的IP封的差不多了，没啥实际效果了。<a href="https://github.com/abngsa/SmartHosts" target="_blank" rel="noopener">https://github.com/abngsa/SmartHosts</a></p>
-<a id="more"></a>
-<h2 id="goagent"><a href="#goagent" class="headerlink" title="goagent"></a>goagent</h2><p>goagent是依赖于Google推出的GAE的一种翻墙手段。原理大概是自建现有模板的GAE工程，然后通过本地的HTTP代理走通过GAE实现翻墙的目的。GAE的限制是每天1G流量，当时的我们都是人手10个GAE应用来玩。</p>
-<p>现在goagent已经删除了所有的代码。<a href="https://github.com/goagent/goagent" target="_blank" rel="noopener">https://github.com/goagent/goagent</a></p>
-<p>goagent我从10年开始使用，直到14年GFW封锁了大部分IP为结束。GFW封锁Google的大部分IP在我看来也代表着免费翻墙时代的终结。</p>
-<h2 id="VPN"><a href="#VPN" class="headerlink" title="VPN"></a>VPN</h2><p>goagent时代结束之后，我就开始找寻付费的翻墙方式了，首先考虑用的就是VPN。关于VPN的定义，请看维基百科：<a href="https://www.wikiwand.com/zh-cn/%E8%99%9B%E6%93%AC%E7%A7%81%E4%BA%BA%E7%B6%B2%E8%B7%AF" target="_blank" rel="noopener">https://www.wikiwand.com/zh-cn/%E8%99%9B%E6%93%AC%E7%A7%81%E4%BA%BA%E7%B6%B2%E8%B7%AF</a></p>
-<p>14年找寻了很多VPN，我用过的有云梯（<a href="https://www.ytpub.com/" target="_blank" rel="noopener">https://www.ytpub.com/</a>），Green（<a href="http://www.greenvpn.wang/" target="_blank" rel="noopener">http://www.greenvpn.wang/</a>），Nydus（<a href="http://www.nydusnew.com/" target="_blank" rel="noopener">http://www.nydusnew.com/</a>）。其中Nydus是我用的最长时间的一个，它的优势在于不限流量，速度飞快，线路多。</p>
-<p>但是VPN有个不好的地方，没办法和gfwlist配合使用，没办法指定哪些走哪些不走。我同时还玩PT（<a href="http://www.wikiwand.com/zh-cn/PT%E4%B8%8B%E8%BC%89" target="_blank" rel="noopener">http://www.wikiwand.com/zh-cn/PT%E4%B8%8B%E8%BC%89</a>），而大部分PT是禁止使用VPN的，或者说禁止单IP多用户。VPN也禁止挂PT。这样子VPN对于我来说，也不是那么适合。</p>
-<h2 id="VPS"><a href="#VPS" class="headerlink" title="VPS"></a>VPS</h2><p>VPS和翻墙无关，他只是翻墙的载体而已。GFW不可能封锁所有的国外服务器，所以就可以采用买一台VPS的方式来架设自己的翻墙服务器。</p>
-<p>VPS一般都买Linux的服务器，虚拟化的方案常见的有两种OpenVZ，KVM。</p>
-<p>OpenVZ的优势在于便宜，比如搬瓦工，HostUS等大部分采用的OpenVZ的架构，这种架构的劣势是容易超卖（网传）。</p>
-<p>KVM架构的VPS是首选，劣势是贵，我用过DigtalOcean，Vultr等。</p>
-<p>我认为最重要的KVM最大的优势是<strong>能用锐速</strong>。这简直是网速提升的必备条件。</p>
-<p>我用的VPS有搬瓦工（<a href="https://bandwagonhost.com" target="_blank" rel="noopener">https://bandwagonhost.com</a>），Vultr（<a href="https://www.vultr.com/" target="_blank" rel="noopener">https://www.vultr.com/</a>），HostUS（<a href="https://hostus.us/" target="_blank" rel="noopener">https://hostus.us/</a>），DigitalOcean（<a href="https://www.digitalocean.com/" target="_blank" rel="noopener">https://www.digitalocean.com/</a>）。现在手里面就剩一个搬瓦工了，还有一个是付费Shadowsocks所用的VPS，是GMO旗下的ConoHa（<a href="https://www.conoha.jp/zh" target="_blank" rel="noopener">https://www.conoha.jp/zh</a>）。</p>
-<h2 id="Shadowsocks"><a href="#Shadowsocks" class="headerlink" title="Shadowsocks"></a>Shadowsocks</h2><p>现在Shadowsocks是我主要使用的翻墙方式了，买个VPS，搭建Shadowsocks之后配合gfwlist和chrome的switchOmega简直没有更酷了。</p>
-<p>Shadowsocks简直全平台通用，Windows，Mac，Android，iOS（越狱），路由器等无所不包。</p>
-<p>Shadowsocks有能力的可以买VPS自荐，也可以找一些免费的资源，还有就是合租服务器。</p>
-<p>免费合租推荐去下面的地方：<a href="http://ss.yearn.cc/" target="_blank" rel="noopener">http://ss.yearn.cc/</a>，这是我现在在用的合租Shadowsocks。</p>
-<p><br><br><br><br>翻墙的历史大概就是这样，有机会了我也介绍一下现在常用的翻墙方式的具体办法。</p>
+                <h2 id="Hexo介紹"><a href="#Hexo介紹" class="headerlink" title="Hexo介紹"></a>Hexo介紹</h2><p>Hexo 是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。</p>
+<p>Hexo 支持 GitHub Flavored Markdown 的所有功能，甚至可以整合 Octopress 的大多数插件。</p>
+<p>只需一条指令即可部署到 GitHub Pages, Heroku 或其他网站。<br><a id="more"></a></p>
+<h2 id="安裝"><a href="#安裝" class="headerlink" title="安裝"></a>安裝</h2><h3 id="nodejs安裝"><a href="#nodejs安裝" class="headerlink" title="nodejs安裝"></a>nodejs安裝</h3><p>MAC或者Windows直接到官网下载node安装包安装即可。</p>
+<p>下载地址：<a href="https://nodejs.org/zh-cn/download/" target="_blank" rel="noopener">https://nodejs.org/zh-cn/download/</a></p>
+<p>安装hexo所需的插件：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">npm install hexo-cli -g</span><br><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
+<p>Mac系统可能会提示没有权限，需要先执行以下命令：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo chown -R $USER $(brew --prefix)/*</span><br></pre></td></tr></table></figure></p>
+<h3 id="Hexo初始化"><a href="#Hexo初始化" class="headerlink" title="Hexo初始化"></a>Hexo初始化</h3><p>建立存放Hexo的目录，在文件夹中执行以下操作。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">hexo init</span><br></pre></td></tr></table></figure>
+<p>Hexo目录就建立好了。</p>
+<h2 id="Hexo常用命令"><a href="#Hexo常用命令" class="headerlink" title="Hexo常用命令"></a>Hexo常用命令</h2><p>清除编译文件：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure></p>
+<p>编译：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo generate</span><br></pre></td></tr></table></figure></p>
+<p>发布：<br>发布后可以打开<a href="http://localhost:4000" target="_blank" rel="noopener">http://localhost:4000</a>查看效果。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo server</span><br></pre></td></tr></table></figure></p>
+<h2 id="发布到GitHub-Pages"><a href="#发布到GitHub-Pages" class="headerlink" title="发布到GitHub Pages"></a>发布到GitHub Pages</h2><ol>
+<li>在GitHub中创建项目，项目名称为${GITHUB_USER_NAME}.github.io，例如happy-tao.github.io。</li>
+<li><p>在Hexo的_config.yml中加入以下配置：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">  repo:</span> <span class="attr">https://github.com/$&#123;GITHUB_USER_NAME&#125;/$&#123;GITHUB_USER_NAME&#125;.github.io.git</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行以下命令发布到GitHub Pages。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>访问${GITHUB_USER_NAME}.github.io即可看到发布后的效果。</p>
+</li>
+</ol>
+<h2 id="命令缩写"><a href="#命令缩写" class="headerlink" title="命令缩写"></a>命令缩写</h2><p>以下每组命令均能实现同样的效果，可以简写。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo geneate</span><br><span class="line">hexo g</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo server</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo deploy</span><br><span class="line">hexo d</span><br></pre></td></tr></table></figure>
+<p>命令连写，例如清除编译文件重新编译并本地运行：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</span><br></pre></td></tr></table></figure></p>
+<h2 id="更换主题"><a href="#更换主题" class="headerlink" title="更换主题"></a>更换主题</h2><p>Hexo提供了丰富的主题可供更换。</p>
+<p><a href="https://hexo.io/themes/index.html" target="_blank" rel="noopener">https://hexo.io/themes/index.html</a></p>
+<p>从GitHub中下载主题后需要放到Hexo目录下的themes文件夹。</p>
+<p>然后从_config.yml中替换themes为你下载的主题名。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">Anisina</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="自定义域名"><a href="#自定义域名" class="headerlink" title="自定义域名"></a>自定义域名</h2><ol>
+<li>在source文件夹下建立CNAME文件。</li>
+<li>在CNAME中写入你所拥有的域名。</li>
+<li>将域名解析到GitHub Pages的IP（192.30.252.154,192.30.252.153）。</li>
+</ol>
+<p>重新编译发布访问域名即可看到效果。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</span><br></pre></td></tr></table></figure></p>
+<h2 id="将Hexo源码发布到GitHub"><a href="#将Hexo源码发布到GitHub" class="headerlink" title="将Hexo源码发布到GitHub"></a>将Hexo源码发布到GitHub</h2><p>将源码相关的发布到GitHub，方便随处可以访问。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -am &quot;init&quot;</span><br><span class="line">git push origin source</span><br></pre></td></tr></table></figure></p>
+<p>GitHub中的source分支即为源码。</p>
 
                 <hr>
                 
 
                 <ul class="pager">
                     
-                    <li class="previous">
-                        <a href="/2015/12/31/2015-12-31-jvm-memory/" data-toggle="tooltip" data-placement="top"
-                           title="JVM内存简介">&larr; Previous Post</a>
-                    </li>
-                    
                     
                     <li class="next">
-                        <a href="/2015/12/29/2015-12-29-start/" data-toggle="tooltip" data-placement="top"
-                           title="我的博客">Next Post &rarr;</a>
+                        <a href="/2017/08/03/2017-08-03-quartz/" data-toggle="tooltip" data-placement="top"
+                           title="Quartz基础知识及源码分享">Next Post &rarr;</a>
                     </li>
                     
                 </ul>
@@ -232,7 +241,7 @@
 
             <div class="hidden-xs col-sm-3 toc-col">
                 <div class="toc-wrap">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP代理"><span class="toc-text">HTTP代理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Google-IPV6-Host"><span class="toc-text">Google IPV6 Host</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#goagent"><span class="toc-text">goagent</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VPN"><span class="toc-text">VPN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VPS"><span class="toc-text">VPS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shadowsocks"><span class="toc-text">Shadowsocks</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hexo介紹"><span class="toc-text">Hexo介紹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安裝"><span class="toc-text">安裝</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#nodejs安裝"><span class="toc-text">nodejs安裝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hexo初始化"><span class="toc-text">Hexo初始化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hexo常用命令"><span class="toc-text">Hexo常用命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#发布到GitHub-Pages"><span class="toc-text">发布到GitHub Pages</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命令缩写"><span class="toc-text">命令缩写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#更换主题"><span class="toc-text">更换主题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自定义域名"><span class="toc-text">自定义域名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#将Hexo源码发布到GitHub"><span class="toc-text">将Hexo源码发布到GitHub</span></a></li></ol>
                 </div>
             </div>
         </div>
@@ -254,25 +263,14 @@
                     </h5>
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#翻墙"
-                           title="翻墙">翻墙</a>
+                        <a class="tag" href="/tags/#Hexo"
+                           title="Hexo">Hexo</a>
                         
                     </div>
                 </section>
                 
 
                 <!-- Friends Blog -->
-                
-                <div style="margin-top: 20px;">
-                    <h5 class="text-center">FRIENDS</h5>
-                    <ul class="list-inline text-center">
-                        
-                        <li><a href="https://go.ruitao.name">Google</a></li>
-                        
-                        <li><a href="http://idea.ruitao.name">IDEA激活</a></li>
-                        
-                    </ul>
-                </div>
                 
             </div>
         </div>

@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://ruitao.name/2018/02/08/2018-02-08-hexo/</loc>
+    
+    <lastmod>2018-02-09T06:56:04.069Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://ruitao.name/2017/08/03/2017-08-03-quartz/</loc>
     
-    <lastmod>2018-02-07T06:38:25.477Z</lastmod>
+    <lastmod>2018-02-09T06:56:04.063Z</lastmod>
     
   </url>
   
@@ -26,13 +33,6 @@
     <loc>http://ruitao.name/2015/12/29/2015-12-29-start/</loc>
     
     <lastmod>2018-02-06T11:37:46.449Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://ruitao.name/2015/12/30/2015-12-30-daili/</loc>
-    
-    <lastmod>2018-02-06T11:37:46.433Z</lastmod>
     
   </url>
   
