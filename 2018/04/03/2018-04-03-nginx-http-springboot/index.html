@@ -6,8 +6,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="我的博客,陶陶滔滔涛的博客">
-    <meta name="keywords" content="陶陶滔滔涛, ruitao, Java">
+    <meta name="description" content="nginx做https转发，springboot应用内获取为http解决方案,陶陶滔滔涛的博客">
+    <meta name="keywords" content="陶陶滔滔涛, ruitao, Java, nginx, SpringBoot">
     <meta name="theme-color" content="#600090">
     <meta name="msapplication-navbutton-color" content="#600090">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,11 +18,11 @@
     <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.css">
     <title>
         
-        我的博客｜陶陶滔滔涛的博客
+        nginx做https转发，springboot应用内获取为http解决方案｜陶陶滔滔涛的博客
         
     </title>
 
-    <link rel="canonical" href="http://ruitao.name/2015/12/29/2015-12-29-start/">
+    <link rel="canonical" href="http://ruitao.name/2018/04/03/2018-04-03-nginx-http-springboot/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -145,18 +145,21 @@
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 text-center">
                 <div class="post-heading">
-                    <h1>我的博客</h1>
+                    <h1>nginx做https转发，springboot应用内获取为http解决方案</h1>
                     
                     <span class="meta">
                          作者 陶陶滔滔涛
                         <span>
-                          日期 2015-12-29
+                          日期 2018-04-03
                          </span>
                     </span>
                     <div class="tags text-center">
                         
-                        <a class="tag" href="/tags/#杂七杂八"
-                           title="杂七杂八">杂七杂八</a>
+                        <a class="tag" href="/tags/#nginx"
+                           title="nginx">nginx</a>
+                        
+                        <a class="tag" href="/tags/#SpringBoot"
+                           title="SpringBoot">SpringBoot</a>
                         
                     </div>
                 </div>
@@ -165,7 +168,7 @@
     </div>
     <div class="post-title-haojen">
         <span>
-            我的博客
+            nginx做https转发，springboot应用内获取为http解决方案
         </span>
     </div>
 </header>
@@ -176,19 +179,28 @@
         <div class="row">
             <!-- Post Container -->
             <div class="col-lg-8 col-lg-offset-1 col-sm-9 post-container">
-                <p>以后就在这里写博客了。</p>
-<p>记录一些自己开发上的心得。还有随手的一些东东。</p>
+                <h2 id="案列介绍"><a href="#案列介绍" class="headerlink" title="案列介绍"></a>案列介绍</h2><p>今天项目上线，使用nginx做负载均衡和反向代理，由于有应用内跳转的内容，发现跳转后的url均为http，导致应用无法正常访问。</p>
+<p>体现在第三方授权的回调，以及应用内使用request.getRequestURL获取当前URL时，得到的结果均为http而不是期望的https。</p>
+<a id="more"></a>
+<h2 id="nginx配置"><a href="#nginx配置" class="headerlink" title="nginx配置"></a>nginx配置</h2><p>nginx配置文件中在需要转发的部分加入以下内容。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">proxy_set_header X-Forwarded-Proto  $scheme;</span><br></pre></td></tr></table></figure></p>
+<p>重启nginx。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo nginx -s reload</span><br></pre></td></tr></table></figure></p>
+<h2 id="SpringBoot配置"><a href="#SpringBoot配置" class="headerlink" title="SpringBoot配置"></a>SpringBoot配置</h2><p>SpringBoot的application.properties中加入以下配置。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server.tomcat.protocol_header=x-forwarded-proto</span><br><span class="line">server.tomcat.port-header=X-Forwarded-Port</span><br><span class="line">server.use-forward-headers=true</span><br></pre></td></tr></table></figure></p>
+<p>SpringBoot参考文档地址。<a href="https://docs.spring.io/spring-boot/docs/2.0.0.M3/reference/htmlsingle/#howto-use-tomcat-behind-a-proxy-server" target="_blank" rel="noopener">https://docs.spring.io/spring-boot/docs/2.0.0.M3/reference/htmlsingle/#howto-use-tomcat-behind-a-proxy-server</a></p>
+<h2 id="解决方法说明"><a href="#解决方法说明" class="headerlink" title="解决方法说明"></a>解决方法说明</h2><p>在nginx端，需要将当前访问的真实scheme设置到request的头部。</p>
+<p>在SpringBoot应用中，需要使用nginx设置的头部信息替换默认的信息。</p>
+<p>同样的方式也可以做request.getRemoteIp等。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://blog.csdn.net/yucharlie/article/details/77547754" target="_blank" rel="noopener">https://blog.csdn.net/yucharlie/article/details/77547754</a><br><a href="http://www.cnblogs.com/yang-wu/p/5107899.html" target="_blank" rel="noopener">http://www.cnblogs.com/yang-wu/p/5107899.html</a></p>
 
                 <hr>
                 
 
                 <ul class="pager">
                     
-                    <li class="previous">
-                        <a href="/2015/12/31/2015-12-31-jvm-memory/" data-toggle="tooltip" data-placement="top"
-                           title="JVM内存简介">&larr; Previous Post</a>
-                    </li>
                     
+                    <li class="next">
+                        <a href="/2018/02/08/2018-02-08-hexo/" data-toggle="tooltip" data-placement="top"
+                           title="使用Hexo创建博客">Next Post &rarr;</a>
+                    </li>
                     
                 </ul>
 
@@ -203,7 +215,7 @@
 
             <div class="hidden-xs col-sm-3 toc-col">
                 <div class="toc-wrap">
-                    
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#案列介绍"><span class="toc-text">案列介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx配置"><span class="toc-text">nginx配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SpringBoot配置"><span class="toc-text">SpringBoot配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方法说明"><span class="toc-text">解决方法说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文档"><span class="toc-text">参考文档</span></a></li></ol>
                 </div>
             </div>
         </div>
@@ -225,8 +237,11 @@
                     </h5>
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#杂七杂八"
-                           title="杂七杂八">杂七杂八</a>
+                        <a class="tag" href="/tags/#nginx"
+                           title="nginx">nginx</a>
+                        
+                        <a class="tag" href="/tags/#SpringBoot"
+                           title="SpringBoot">SpringBoot</a>
                         
                     </div>
                 </section>
